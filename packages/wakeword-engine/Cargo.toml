@@ -1,0 +1,18 @@
+[package]
+name = "wakeword-engine"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+napi = { version = "2.12.0", default-features = false, features = ["napi4"] }
+napi-derive = "2.12.2"
+ort = { version = "2.0.0-rc.9", features = ["download-binaries", "ndarray"] }
+ndarray = "0.16" # Match ort version
+mel_spec = "0.1.2"
+rustfft = "6.2.0"
+
+[build-dependencies]
+napi-build = "2.0.1"
+
+[lib]
+crate-type = ["cdylib"]

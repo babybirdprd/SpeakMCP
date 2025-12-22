@@ -48,6 +48,7 @@
     "@radix-ui/react-scroll-area": "^1.2.9",
     "@radix-ui/react-tabs": "^1.1.13",
     "@speakmcp/shared": "workspace:^",
+    "wakeword-engine": "workspace:*",
     "ajv": "^8.17.1",
     "fastify": "^5.6.1",
     "highlight.js": "^11.11.1",

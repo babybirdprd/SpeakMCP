@@ -21,6 +21,7 @@ import { diagnosticsService } from "./diagnostics"
 
 import { configStore } from "./config"
 import { startRemoteServer } from "./remote-server"
+import { initWakeWord } from "./wakeword"
 
 registerServeSchema()
 
@@ -73,6 +74,8 @@ app.whenReady().then(() => {
 
   initTray()
   logApp("System tray initialized")
+
+  initWakeWord()
 
   mcpService
     .initialize()
