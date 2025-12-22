@@ -27,7 +27,9 @@ function WakeWordManager() {
       if (!recorderRef.current) {
         recorderRef.current = new WakeWordRecorder()
         recorderRef.current.on('audio-chunk', (data) => {
-            window.electron.ipcRenderer.send('wake-word:audio-chunk', data)
+            if (window.electron) {
+                window.electron.ipcRenderer.send('wake-word:audio-chunk', data)
+            }
         })
       }
       recorderRef.current.start()
