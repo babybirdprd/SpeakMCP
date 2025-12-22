@@ -49,6 +49,12 @@ module.exports = {
       {
         from: "build/icon.ico",
         to: "icon.ico"
+      },
+      {
+        // For Windows dynamic linking of ONNX Runtime
+        from: "../../packages/wakeword-engine/target/release",
+        to: "resources",
+        filter: ["*.dll"]
       }
     ]
   },
@@ -64,6 +70,14 @@ module.exports = {
   mac: {
     binaries: [
       "resources/bin/speakmcp-rs",
+    ],
+    extraResources: [
+      {
+        // For macOS dynamic linking of ONNX Runtime
+        from: "../../packages/wakeword-engine/target/release",
+        to: "Frameworks",
+        filter: ["*.dylib"]
+      }
     ],
     artifactName: "${productName}-${version}-${arch}.${ext}",
     entitlementsInherit: "build/entitlements.mac.plist",
