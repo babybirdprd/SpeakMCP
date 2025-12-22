@@ -21,6 +21,8 @@ import { diagnosticsService } from "./diagnostics"
 
 import { configStore } from "./config"
 import { startRemoteServer } from "./remote-server"
+import { wakeWordService } from "./wake-word-service"
+import { ipcMain } from "electron"
 
 registerServeSchema()
 
@@ -87,6 +89,40 @@ app.whenReady().then(() => {
       )
       logApp("Failed to initialize MCP service on startup:", error)
     })
+
+  // Wake Word Setup
+  wakeWordService.init().catch(err => logApp(`Failed to init wake word service: ${err}`))
+
+  wakeWordService.on('detected', (keyword) => {
+    logApp(`Wake word detected: ${keyword}`)
+
+    // Notify renderer to show UI or start recording
+    const win = WINDOWS.get('main') || WINDOWS.get('panel')
+
+    // Also trigger start recording if config allows
+    // Ideally we should check if recording is already in progress
+    // But for now, let's just trigger startRecording which usually toggles or starts.
+
+    if (win) {
+        // Send detected event for UI feedback
+        win.webContents.send('wake-word:detected', keyword)
+
+        // Also tell renderer to start recording
+        // We use the same channel as the global shortcut
+        import("@egoist/tipc/main").then(({ getRendererHandlers }) => {
+            getRendererHandlers(win.webContents).startRecording.send({ fromButtonClick: false })
+        })
+    }
+  })
+
+  ipcMain.on('wake-word:audio-chunk', (_, data) => {
+      // data is Float32Array from renderer
+      wakeWordService.processAudio(data)
+  })
+
+  ipcMain.handle('wake-word:update-config', async (_, keywords) => {
+      await wakeWordService.setKeywords(keywords)
+  })
 
 	  try {
 	    const cfg = configStore.get()

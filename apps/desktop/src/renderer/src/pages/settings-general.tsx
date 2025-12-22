@@ -31,16 +31,38 @@ import {
   useSaveConfigMutation,
 } from "@renderer/lib/query-client"
 import { tipcClient } from "@renderer/lib/tipc-client"
-import { useState, useCallback, useEffect } from "react"
+import { useState, useCallback, useEffect, useRef } from "react"
 import { Config } from "@shared/types"
 import { KeyRecorder } from "@renderer/components/key-recorder"
 import {
   getEffectiveShortcut,
   formatKeyComboForDisplay,
 } from "@shared/key-utils"
+import { useWakeWordStore } from "@renderer/stores/wake-word-store"
+import { WakeWordRecorder } from "@renderer/lib/wake-word-recorder"
 
 export function Component() {
   const configQuery = useConfigQuery()
+  const { isEnabled, keywords, setEnabled, setKeywords, addKeyword, removeKeyword } = useWakeWordStore()
+  const wakeWordRecorderRef = useRef<WakeWordRecorder | null>(null)
+
+  useEffect(() => {
+    // We should really handle this at a higher level (e.g. App.tsx) but for now let's sync state here
+    // to the backend.
+
+    // Actually, backend needs to know when config changes.
+    // And recorder needs to start/stop.
+
+    // For this specific plan step, I am modifying the Settings UI.
+    // The integration of recorder start/stop logic should be in App.tsx or a dedicated manager,
+    // but the UI controls go here.
+
+    // However, I need to send the keywords to backend when they change.
+    tipcClient.wakeWordUpdateConfig(keywords)
+  }, [keywords])
+
+  // Effect to handle enabling/disabling via backend call if we moved logic there,
+  // but for now let's just use the store for UI and let App.tsx handle the effect.
 
   const saveConfigMutation = useSaveConfigMutation()
 
@@ -433,6 +455,44 @@ export function Component() {
               )}
             </div>
           </Control>
+        </ControlGroup>
+
+        <ControlGroup title="Wake Word (Beta)">
+            <Control label={<ControlLabel label="Enable Wake Word" tooltip="Listen for keywords to activate the assistant hands-free." />} className="px-3">
+                <Switch
+                    checked={isEnabled}
+                    onCheckedChange={(value) => setEnabled(value)}
+                />
+            </Control>
+
+            {isEnabled && (
+                <Control label={<ControlLabel label="Keywords" tooltip="Add custom phrases to trigger the assistant." />} className="px-3">
+                    <div className="space-y-2">
+                        <div className="flex gap-2">
+                             <Input
+                                placeholder="Add new keyword..."
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        const val = e.currentTarget.value.trim()
+                                        if (val) {
+                                            addKeyword(val)
+                                            e.currentTarget.value = ''
+                                        }
+                                    }
+                                }}
+                             />
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                            {keywords.map(k => (
+                                <div key={k} className="flex items-center gap-1 bg-secondary px-2 py-1 rounded text-sm">
+                                    {k}
+                                    <button onClick={() => removeKeyword(k)} className="hover:text-destructive">×</button>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </Control>
+            )}
         </ControlGroup>
 
         <ControlGroup title="Speech-to-Text">

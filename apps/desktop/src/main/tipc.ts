@@ -2621,6 +2621,39 @@ export const router = {
 
       return true
     }),
+
+    wakeWordUpdateConfig: t.procedure
+        .input<string[]>()
+        .action(async ({ input }) => {
+            const { ipcMain } = await import("electron")
+            // Re-use the handler registered in main/index.ts via invoke
+            // Wait, tipc handlers run in main process.
+            // But wakeWordDetector is a local variable in main/index.ts, not exported.
+            // I should export it or move it to a service.
+
+            // Actually, I registered `ipcMain.handle('wake-word:update-config', ...)` in index.ts
+            // But tipc is separate.
+
+            // Ideally tipc should handle this.
+            // But since I already registered a raw IPC handler in index.ts,
+            // I should use `invoke` from renderer directly or expose it here properly.
+
+            // To fix this cleanly, I should move `WakeWordDetector` instance to a singleton service file.
+            // But for now, since `wakeWordDetector` is in `index.ts`, I can't access it here easily.
+
+            // Alternative: In `index.ts`, I can assign the instance to a global or export it.
+            // Or, simply rely on the fact that I added `ipcMain.handle` in `index.ts`,
+            // and in `tipc-client.ts` I can call it via raw IPC if tipc doesn't cover it.
+
+            // But I want to use tipc for type safety.
+            // I will emit an event on `app` or similar? No, that's messy.
+
+            // Best approach: Move WakeWordDetector to a service file `wake-word-service.ts` similar to `mcp-service.ts`.
+
+            const { wakeWordService } = await import("./wake-word-service")
+            await wakeWordService.setKeywords(input)
+            return { success: true }
+        }),
 }
 
 // TTS Provider Implementation Functions

@@ -38,4 +38,6 @@ export type RendererHandlers = {
 
   // MCP Sampling handlers (Protocol 2025-11-25)
   "mcp:sampling-request": (request: SamplingRequest) => void
+
+  "wake-word:detected": (keyword: string) => void
 }
