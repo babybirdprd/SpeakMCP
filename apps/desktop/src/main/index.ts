@@ -18,6 +18,8 @@ import { mcpService } from "./mcp-service"
 import { initDebugFlags, logApp } from "./debug"
 import { initializeDeepLinkHandling } from "./oauth-deeplink-handler"
 import { diagnosticsService } from "./diagnostics"
+import { wakeWordEngine } from "./wakeword-engine"
+import { ipcMain } from "electron"
 
 import { configStore } from "./config"
 import { startRemoteServer } from "./remote-server"
@@ -135,6 +137,22 @@ app.whenReady().then(() => {
   app.on("browser-window-created", (_, window) => {
     optimizer.watchWindowShortcuts(window)
   })
+
+  // Initialize Wake Word Engine
+  try {
+    const mainWindow = WINDOWS.get("main")
+    if (mainWindow) {
+      wakeWordEngine.setMainWindow(mainWindow)
+    }
+    wakeWordEngine.start()
+
+    // Handle wake word updates from renderer
+    ipcMain.on('update-wake-word', (_, newWord) => {
+      wakeWordEngine.updateWakeWord(newWord)
+    })
+  } catch (err) {
+    console.error('Failed to initialize Wake Word Engine:', err)
+  }
 
   app.on("activate", function () {
     if (accessibilityGranted) {
