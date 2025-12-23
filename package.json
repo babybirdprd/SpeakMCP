@@ -16,7 +16,9 @@
   "packageManager": "pnpm@9.12.1",
   "pnpm": {
     "overrides": {
-      "dotenv-expand": "11.0.6"
+      "dotenv-expand": "11.0.6",
+      "ffi-napi": "npm:@2060.io/ffi-napi@^4.0.9",
+      "ref-napi": "npm:@2060.io/ref-napi@^3.0.6"
     }
   }
 }
