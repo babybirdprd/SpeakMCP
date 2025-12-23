@@ -49,6 +49,11 @@ module.exports = {
       {
         from: "build/icon.ico",
         to: "icon.ico"
+      },
+      {
+        from: "resources/models",
+        to: "models",
+        filter: ["**/*"]
       }
     ]
   },
@@ -213,6 +218,11 @@ module.exports = {
       {
         from: "resources/bin/speakmcp-rs",
         to: "bin/speakmcp-rs",
+        filter: ["**/*"]
+      },
+      {
+        from: "resources/models",
+        to: "models",
         filter: ["**/*"]
       }
     ]
