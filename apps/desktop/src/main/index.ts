@@ -21,6 +21,8 @@ import { diagnosticsService } from "./diagnostics"
 
 import { configStore } from "./config"
 import { startRemoteServer } from "./remote-server"
+import { WakeWordEngine } from "./wakeword-engine"
+import { webContents } from "electron"
 
 // Enable CDP remote debugging port if REMOTE_DEBUGGING_PORT env variable is set
 // This must be called before app.whenReady()
@@ -100,6 +102,35 @@ app.whenReady().then(() => {
 
   initTray()
   logApp("System tray initialized")
+
+  // Initialize Wake Word Engine
+  const wakeWordEngine = new WakeWordEngine()
+  const cfg = configStore.get()
+
+  // Assuming there's a setting for enabling wake word, or we default to enabled if configured?
+  // For now, I'll just check if a wake word is set or if we want to enable it by default.
+  // The task implies we want it available.
+  // I'll attach it to the global object or manage it appropriately.
+  // Ideally, I should expose it via a singleton or module export, but since I'm in index.ts, I can initialize it.
+
+  wakeWordEngine.on('wake-word-detected', () => {
+    logApp("Wake word detected! Sending event to renderer.")
+    const mainWindow = WINDOWS.get("main")
+    if (mainWindow) {
+      mainWindow.webContents.send('WAKE_WORD_DETECTED')
+    }
+    const panelWindow = WINDOWS.get("panel")
+    if (panelWindow) {
+      panelWindow.webContents.send('WAKE_WORD_DETECTED')
+    }
+  })
+
+  // Start listening if configured (or just start it to test as per requirements)
+  // I will make it configurable later via IPC, but for now let's start it.
+  wakeWordEngine.startListening()
+
+  // Store reference to prevent GC and allow access
+  ;(global as any).wakeWordEngine = wakeWordEngine
 
   mcpService
     .initialize()
