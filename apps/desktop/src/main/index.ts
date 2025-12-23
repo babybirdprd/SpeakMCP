@@ -18,6 +18,8 @@ import { mcpService } from "./mcp-service"
 import { initDebugFlags, logApp } from "./debug"
 import { initializeDeepLinkHandling } from "./oauth-deeplink-handler"
 import { diagnosticsService } from "./diagnostics"
+import { initWakeWordEngine, startWakeWordListening } from "./wakeword-engine"
+import { showPanelWindowAndShowTextInput } from "./window"
 
 import { configStore } from "./config"
 import { startRemoteServer } from "./remote-server"
@@ -114,6 +116,15 @@ app.whenReady().then(() => {
       )
       logApp("Failed to initialize MCP service on startup:", error)
     })
+
+  // Initialize Wake Word Engine
+  initWakeWordEngine()
+  // Automatically start listening (can be configurable later)
+  startWakeWordListening(() => {
+    // Action on wake word detected
+    logApp("Wake word detected! Opening panel...")
+    showPanelWindowAndShowTextInput()
+  })
 
 	  try {
 	    const cfg = configStore.get()

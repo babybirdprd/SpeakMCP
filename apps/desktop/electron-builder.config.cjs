@@ -47,6 +47,11 @@ module.exports = {
         filter: ["**/*"]
       },
       {
+        from: "resources/models",
+        to: "models",
+        filter: ["**/*"]
+      },
+      {
         from: "build/icon.ico",
         to: "icon.ico"
       }
@@ -64,6 +69,13 @@ module.exports = {
   mac: {
     binaries: [
       "resources/bin/speakmcp-rs",
+    ],
+    extraResources: [
+      {
+        from: "resources/models",
+        to: "models",
+        filter: ["**/*"]
+      }
     ],
     artifactName: "${productName}-${version}-${arch}.${ext}",
     entitlementsInherit: "build/entitlements.mac.plist",
@@ -213,6 +225,11 @@ module.exports = {
       {
         from: "resources/bin/speakmcp-rs",
         to: "bin/speakmcp-rs",
+        filter: ["**/*"]
+      },
+      {
+        from: "resources/models",
+        to: "models",
         filter: ["**/*"]
       }
     ]

@@ -59,6 +59,7 @@ import { emitAgentProgress } from "./emit-agent-progress"
 import { agentSessionTracker } from "./agent-session-tracker"
 import { messageQueueService } from "./message-queue-service"
 import { profileService } from "./profile-service"
+import { updateWakeWord } from "./wakeword-engine"
 
 async function initializeMcpWithProgress(config: Config, sessionId: string): Promise<void> {
   const shouldStop = () => agentSessionStateManager.shouldStopSession(sessionId)
@@ -2486,6 +2487,13 @@ export const router = {
     .input<{ conversationId: string; messageIds: string[] }>()
     .action(async ({ input }) => {
           return messageQueueService.reorderQueue(input.conversationId, input.messageIds)
+    }),
+
+  updateWakeWord: t.procedure
+    .input<{ wakeWord: string }>()
+    .action(async ({ input }) => {
+      updateWakeWord(input.wakeWord)
+      return { success: true }
     }),
 
   updateQueuedMessageText: t.procedure
