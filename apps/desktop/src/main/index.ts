@@ -21,6 +21,7 @@ import { diagnosticsService } from "./diagnostics"
 
 import { configStore } from "./config"
 import { startRemoteServer } from "./remote-server"
+import { initializeWakeWord, cleanupWakeWord } from "./wakeword"
 
 registerServeSchema()
 
@@ -78,8 +79,9 @@ app.whenReady().then(() => {
   logApp("Serve protocol registered")
 
   if (accessibilityGranted) {
-    createMainWindow()
+    const mainWindow = createMainWindow()
     logApp("Main window created")
+    initializeWakeWord(mainWindow)
   } else {
     createSetupWindow()
     logApp("Setup window created (accessibility not granted)")
@@ -143,6 +145,7 @@ app.whenReady().then(() => {
 
   app.on("before-quit", () => {
     makePanelWindowClosable()
+    cleanupWakeWord()
   })
 })
 
